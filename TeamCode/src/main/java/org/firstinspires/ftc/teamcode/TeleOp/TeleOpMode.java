@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.Commands.DrivetrainCommand;
 import org.firstinspires.ftc.teamcode.SubsystemBase.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.SubsystemBase.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.ArmCommand;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 @TeleOp
 public class TeleOpMode extends OpMode {
@@ -17,6 +18,9 @@ public class TeleOpMode extends OpMode {
     private ArmCommand armCommand;
     private IntakeSubsystem intakeSubsystem;
     private int targetTicks = 200;
+    private Gamepad previousGamepad1 = new Gamepad();
+    private Gamepad currentGamepad1 = new Gamepad();
+    
     
     @Override
 
@@ -32,17 +36,33 @@ public class TeleOpMode extends OpMode {
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
         armSubsystem = new ArmSubsystem(hardwareMap);
         armCommand = new ArmCommand(armSubsystem, targetTicks);
-        
-        
-
+    }
+    
+    @Override
+    
+    public void start() {
+    drivetrainCommand.schedule();
+    
     }
 
     @Override
     public void loop() {
-        CommandScheduler.getInstance().run();
+        
+        previousGamepad1.copy(currentGamepad1);
+        currentGamepad1.copy(gamepad1);
 
         
+        if (currentGamepad1.a && !previousGamepad1.a) {
+            new ArmCommand(armSubsystem, targetTicks).schedule();
         }
+
+        CommandScheduler.getInstance().run();
+      }
+
+    @Override
+public void stop() {
+    
+    CommandScheduler.getInstance().reset();
     }
 
 }
